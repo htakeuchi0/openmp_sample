@@ -1,7 +1,7 @@
 # compilers
 CXX = g++
-CXXFLAGS = -std=c++11 -g -Wall --pedantic-errors -O3 -fopenmp -fsanitize=address -fno-omit-frame-pointer
-# CXXFLAGS = -std=c++11 -g -Wall -O3 -fopenmp
+# CXXFLAGS = -std=c++11 -g -Wall --pedantic-errors -O3 -fopenmp -fsanitize=address -fno-omit-frame-pointer
+CXXFLAGS = -std=c++11 -g -Wall -O3 -fopenmp
 MAIN_TARGET = build
 TEST_TARGET = test
 

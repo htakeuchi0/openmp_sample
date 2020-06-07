@@ -365,14 +365,12 @@ TEST_F(MatutilTest, mmul_matvec) {
 
     matutil::mmul(a, b, actual, m, n);
 
-    // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0; i < m; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    // 差のノルムで評価
+    double *sub = new double[m];
+    matutil::sub(expected, actual, sub, m);
+    double norm_val = matutil::norm(sub, m);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] b; b = nullptr;
@@ -414,14 +412,12 @@ TEST_F(MatutilTest, mmul_matmat) {
 
     matutil::mmul(a, b, actual, l, m, n);
 
-    // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0, mn = m*n; i < mn; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    // 差のノルムで評価
+    double *sub = new double[m*n];
+    matutil::sub(expected, actual, sub, m*n);
+    double norm_val = matutil::norm(sub, m*n);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] b; b = nullptr;
@@ -484,14 +480,12 @@ TEST_F(MatutilTest, cholesky) {
     matutil::transpose(l, lt, n, n);
     matutil::mmul(l, lt, actual, n, n, n);
 
-    // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0, nn = n*n; i < nn; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    // 差のノルムで評価
+    double *sub = new double[n*n];
+    matutil::sub(expected, actual, sub, n*n);
+    double norm_val = matutil::norm(sub, n*n);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] l; l = nullptr;
@@ -517,14 +511,12 @@ TEST_F(MatutilTest, copy_vec) {
 
     matutil::copy(a, actual, n);
 
-    // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0; i < n; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    // 差のノルムで評価
+    double *sub = new double[n];
+    matutil::sub(expected, actual, sub, n);
+    double norm_val = matutil::norm(sub, n);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] actual; actual = nullptr;
@@ -548,14 +540,12 @@ TEST_F(MatutilTest, copy_mat) {
 
     matutil::copy(a, actual, n, n);
 
-    // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0, nn = n*n; i < nn; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    // 差のノルムで評価
+    double *sub = new double[n*n];
+    matutil::sub(expected, actual, sub, n*n);
+    double norm_val = matutil::norm(sub, n*n);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] actual; actual = nullptr;
@@ -783,15 +773,12 @@ TEST_F(MatutilTest, solve_vec) {
 
     matutil::solve(a, actual, n);
 
-    // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0; i < n; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            std::cout << std::abs(actual[i] - expected[i]) / std::abs(expected[i]) << "\n";
-            approx_equals = false;
-            break;
-        }
-    }
+    // 差のノルムで評価
+    double *sub = new double[n];
+    matutil::sub(expected, actual, sub, n);
+    double norm_val = matutil::norm(sub, n);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] actual; actual = nullptr;
@@ -840,9 +827,9 @@ TEST_F(MatutilTest, solve_mat) {
     matutil::solve(a, actual, n, m);
 
     // 差のノルムで評価
-    double *sub = new double[n];
-    matutil::sub(expected, actual, sub, n);
-    double norm_val = matutil::norm(sub, n);
+    double *sub = new double[n*m];
+    matutil::sub(expected, actual, sub, n*m);
+    double norm_val = matutil::norm(sub, n*m);
     bool approx_equals = (norm_val < EPS);
     delete[] sub; sub = nullptr;
 
@@ -878,13 +865,11 @@ TEST_F(MatutilTest, qrdecomp) {
     matutil::mmul(q, a, actual, n, n, m);
 
     // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0; i < n; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    double *sub = new double[n*m];
+    matutil::sub(expected, actual, sub, n*m);
+    double norm_val = matutil::norm(sub, n*m);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] q; q = nullptr;
@@ -916,14 +901,12 @@ TEST_F(MatutilTest, qrdecomp_noq) {
 
     matutil::qrdecomp(actual, n, m);
 
-    // 相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0; i < n; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    // 差のノルムで評価
+    double *sub = new double[n*m];
+    matutil::sub(expected, actual, sub, n*m);
+    double norm_val = matutil::norm(sub, n*m);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] q; q = nullptr;
     delete[] actual; actual = nullptr;
@@ -963,14 +946,12 @@ TEST_F(MatutilTest, qrdecompb) {
     // 直接RとQ^Tbを計算
     matutil::qrdecompb(a, actual, n, m);
 
-    // 双方の計算によるQ^Tbの相対誤差を評価
-    bool approx_equals = true;
-    for (int i = 0; i < n; i++) {
-        if (std::abs(actual[i] - expected[i]) >= MatutilTest::EPS * std::abs(expected[i])) {
-            approx_equals = false;
-            break;
-        }
-    }
+    // 双方の計算によるQ^Tbの差のノルムで評価
+    double *sub = new double[n];
+    matutil::sub(expected, actual, sub, n);
+    double norm_val = matutil::norm(sub, n);
+    bool approx_equals = (norm_val < EPS);
+    delete[] sub; sub = nullptr;
 
     delete[] a; a = nullptr;
     delete[] a_copy; a_copy = nullptr;

@@ -341,7 +341,7 @@ TEST_F(MatutilTest, sub_matrix) {
  */
 TEST_F(MatutilTest, mmul_matvec) {
     int m = 2048;
-    int n = 2048;
+    int n = 1024;
     double *a = new double[m*n];
     double *b = new double[n];
     double *actual = new double[m];
@@ -385,8 +385,8 @@ TEST_F(MatutilTest, mmul_matvec) {
  */
 TEST_F(MatutilTest, mmul_matmat) {
     int l = 2048;
-    int m = 2048;
-    int n = 2048;
+    int m = 1024;
+    int n = 4096;
     double *a = new double[l*m];
     double *b = new double[m*n];
     double *actual = new double[l*n];
@@ -529,7 +529,7 @@ TEST_F(MatutilTest, copy_vec) {
  * 行列のコピーが正しく計算できることを確認する．
  */
 TEST_F(MatutilTest, copy_mat) {
-    int n = 2048;
+    int n = 1024;
     double *a = new double[n*n];
     double *actual = new double[n*n];
     double *expected = new double[n*n];
@@ -792,7 +792,7 @@ TEST_F(MatutilTest, solve_vec) {
  */
 TEST_F(MatutilTest, solve_mat) {
     int n = 2048;
-    int m = 2048;
+    int m = 1024;
     double *a = new double[n*n];
     double *expected = new double[n*m];
     double *actual = new double[n*m];
@@ -845,13 +845,13 @@ TEST_F(MatutilTest, solve_mat) {
  */
 TEST_F(MatutilTest, qrdecomp) {
     int n = 2048;
-    int m = 2048;
+    int m = 1024;
     double *a = new double[n*m];
     double *q = new double[n*n];
     double *expected = new double[n*m];
     double *actual = new double[n*m];
 
-    for (int i = 0, nn = n*n; i < nn; i++) {
+    for (int i = 0, nm = n*m; i < nm; i++) {
        a[i] = rand_(mt_);
     }
 
@@ -884,12 +884,12 @@ TEST_F(MatutilTest, qrdecomp) {
  */
 TEST_F(MatutilTest, qrdecomp_noq) {
     int n = 2048;
-    int m = 2048;
+    int m = 1024;
     double *q = new double[n*n];
     double *expected = new double[n*m];
     double *actual = new double[n*m];
 
-    for (int i = 0, nn = n*n; i < nn; i++) {
+    for (int i = 0, nm = n*m; i < nm; i++) {
        actual[i] = rand_(mt_);
     }
 
@@ -920,7 +920,7 @@ TEST_F(MatutilTest, qrdecomp_noq) {
  */
 TEST_F(MatutilTest, qrdecompb) {
     int n = 2048;
-    int m = 2048;
+    int m = 1024;
     double *a = new double[n*m];
     double *a_copy = new double[n*m];
     double *q = new double[n*n];

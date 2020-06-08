@@ -26,9 +26,6 @@ void cholesky(double *a, int m) {
     for (int j = 0; j < m; j++) {
         int jm = j*m;
         double sum = a[j + j*m];
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(-: sum)
-#endif // _OPENMP
         for (int k = 0; k < j; k++) {
             double entry = at[jm + k];
             sum -= entry * entry;
@@ -76,9 +73,6 @@ void solve_l(double *l, double *b, int m) {
     transpose(l, lt, m, m);
     for (int i = 0; i < m; i++) {
         double sum = b[i];
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(-: sum)
-#endif // _OPENMP
         for (int j = 0; j < i; j++) {
             sum -= lt[i*m + j]*b[j];
         }
@@ -101,9 +95,6 @@ void solve_l(double *l, double *b, int m, int start_idx) {
     transpose(l, lt, m, m);
     for (int i = 0, bi = start_idx; i < m; i++, bi++) {
         double sum = b[bi];
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(-: sum)
-#endif // _OPENMP
         for (int j = 0; j < i; j++) {
             sum -= lt[i*m + j]*b[start_idx + j];
         }
@@ -123,9 +114,6 @@ void solve_l(double *l, double *b, int m, int start_idx) {
 void solve_lt(double *l, double *b, int m) {
     for (int i = m - 1; i >= 0; i--) {
         double sum = b[i];
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(-: sum)
-#endif // _OPENMP
         for (int j = m - 1; j > i; j--) {
             sum -= l[j + i*m]*b[j];
         }
@@ -145,9 +133,6 @@ void solve_lt(double *l, double *b, int m) {
 void solve_lt(double *l, double *b, int m, int start_idx) {
     for (int i = m - 1, bi = m - 1 + start_idx; i >= 0; i--, bi--) {
         double sum = b[bi];
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(-: sum)
-#endif // _OPENMP
         for (int j = m - 1; j > i; j--) {
             sum -= l[j + i*m]*b[start_idx + j];
         }
@@ -168,9 +153,6 @@ void solve_r(double *r, double *b, int m) {
     transpose(r, rt, m, m);
     for (int i = m - 1; i >= 0; i--) {
         double sum = b[i];
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(-: sum)
-#endif // _OPENMP
         for (int j = m - 1; j > i; j--) {
             sum -= rt[i*m + j]*b[j];
         }
@@ -193,9 +175,6 @@ void solve_r(double *r, double *b, int m, int start_idx) {
     transpose(r, rt, m, m);
     for (int i = m - 1, bi = m - 1 + start_idx; i >= 0; i--, bi--) {
         double sum = b[bi];
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(-: sum)
-#endif // _OPENMP
         for (int j = m - 1; j > i; j--) {
             sum -= rt[i*m + m]*b[start_idx + j];
         }
@@ -247,11 +226,9 @@ void solve(double *a, double *b, int m, int n) {
  * @return ベクトルの2ノルム
  */
 double norm(double *v, int m) {
+    int i;
     double norm = 0.0;
-#ifdef _OPENMP
-    #pragma omp parallel for reduction(+: norm)
-#endif // _OPENMP
-    for (int i = 0; i < m; i++) {
+    for (i = 0; i < m; i++) {
         double entry = v[i];
         norm += entry * entry;
     }
@@ -273,10 +250,8 @@ bool normalize(double *v, int m) {
         return false;
     }
 
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif // _OPENMP
-    for (int i = 0; i < m; i++) {
+    int i;
+    for (i = 0; i < m; i++) {
         v[i] = v[i] / norm_val;
     }
     return true;
@@ -291,10 +266,8 @@ bool normalize(double *v, int m) {
  * @param[in] i 着目している列
  */
 void qrdecomp_create_u(double *a, double *u, int m, int i) {
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif // _OPENMP
-    for (int j = i; j < m; j++) {
+    int j;
+    for (j = i; j < m; j++) {
         u[j - i] = a[j + i*m];
     }
 }
@@ -326,17 +299,12 @@ void qrdecomp_update_u(double *u, int m) {
 void qrdecomp_update_a(double *a, double *u, int m, int n, int i) {
     for (int j = i; j < n; j++) {
         double v_j = 0.0;
-#ifdef _OPENMP
-        #pragma omp parallel for reduction(+: v_j)
-#endif // _OPENMP
-        for (int k = i; k < m; k++) {
+        int k;
+        for (k = i; k < m; k++) {
             v_j += u[k - i] * a[k + j*m];
         }
 
-#ifdef _OPENMP
-        #pragma omp parallel for
-#endif // _OPENMP
-        for (int k = i; k < m; k++) {
+        for (k = i; k < m; k++) {
             a[k + j*m] -= 2.0*u[k - i]*v_j;
         }
     }
@@ -356,11 +324,11 @@ void qrdecomp_firstiter(double *a, double *q, int m, int n, double *u) {
     qrdecomp_update_u(u, m);
     qrdecomp_update_a(a, u, m, n, 0);
 
-    int k;
+    int j, k;
 #ifdef _OPENMP
     #pragma omp parallel for private(k)
 #endif // _OPENMP
-    for (int j = 0; j < m; j++) {
+    for (j = 0; j < m; j++) {
         for (k = 0; k < m; k++) {
             q[k + j*m] = -2.0*u[k]*u[j];
         }
@@ -430,11 +398,11 @@ void qrdecomp(double *a, double *q, int m, int n) {
         qrdecomp_iter(a, q, m, n, u, i);
     }
 
-    int j;
+    int i, j;
 #ifdef _OPENMP
     #pragma omp parallel for private(j)
 #endif // _OPENMP
-    for (int i = 0; i < m; i++) {
+    for (i = 0; i < m; i++) {
         for (j = 0; j < i; j++) {
             double tmp = q[i + j*m];
             q[i + j*m] = q[i*m + j];
@@ -529,12 +497,12 @@ void mmul(double *a, double *b, double *c, int l, int m, int n) {
     #pragma omp parallel for private(j, k)
 #endif // _OPENMP
     for (i = 0; i < l; i++) {
-        int il = i*l;
+        int im = i*m;
         for (j = 0; j < n; j++) {
             int jm = j*m;
             double sum = 0.0;
             for (k = 0; k < m; k++) {
-                sum += at[k + il] * b[k + jm];
+                sum += at[k + im] * b[k + jm];
             }
             c[i + j*l] = sum;
         }
